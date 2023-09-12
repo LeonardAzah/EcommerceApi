@@ -15,9 +15,9 @@ const {
 } = require("../controllers/userController");
 
 router.get("/", authenticateUser, authorizePermisions("admin"), getAllUsers);
+router.get("/showMe", authenticateUser, showCurrentUser);
+router.patch("/updateuserpassword", authenticateUser, updateUserPassword);
+router.patch("/updateuser", authenticateUser, updateUser);
 router.get("/:id", authenticateUser, getSingleUser);
-router.get("/showMe/:id", showCurrentUser);
-router.patch("/updateuser/:id", updateUser);
-router.patch("/updateuserpassword/:id", updateUserPassword);
 
 module.exports = router;
