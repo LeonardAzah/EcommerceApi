@@ -1,21 +1,50 @@
+const Product = require("../models/Product");
+const CustomError = require("../errors");
+const { StatusCodes } = require("http-status-codes");
+
 const creatProduct = async (req, res) => {
-  res.send("Creating product");
+  req.body.user = req.user.userId;
+  const product = await Product.create(req.body);
+  res.status(StatusCodes.CREATED).json({ product });
 };
 
 const getAllProducts = async (req, res) => {
-  res.send("Getting all products..");
+  const products = await Product.find({});
+
+  res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
 const getSingleProduct = async (req, res) => {
-  res.send("Getting single user");
+  const { id: productId } = req.params;
+  const product = await Product.findOne({ _id: productId });
+  if (!product) {
+    throw new CustomError.NotFoundError("Product not found");
+  }
+
+  res.status(StatusCodes.OK).json({ product });
 };
 
 const updateProduct = async (req, res) => {
-  res.send("Updating product");
+  const { id: productId } = req.params;
+  const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!product) {
+    throw new CustomError.NotFoundError("Product not found");
+  }
+  res.status(StatusCodes.OK).json({ product });
 };
 
 const deleteProduct = async (req, res) => {
-  res.send("Deleting product..");
+  const { id: productId } = req.params;
+  const product = await Product.findOne({ _id: productId });
+  if (!product) {
+    throw new CustomError.NotFoundError("Product not found");
+  }
+  await Product.remove();
+
+  res.status(StatusCodes.OK).json({ message: "Product deleted successfully" });
 };
 
 const uploadImage = async (req, res) => {
