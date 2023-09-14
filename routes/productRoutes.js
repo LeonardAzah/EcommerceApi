@@ -14,7 +14,7 @@ const {
 } = require("../middleware/authentication");
 
 router.post("/", authenticateUser, authorizePermisions("admin"), creatProduct);
-router.get("/", authenticateUser, getAllProducts);
+router.get("/", getAllProducts);
 
 router.post(
   "/uploadImage",
@@ -35,6 +35,6 @@ router.delete(
   authorizePermisions("admin"),
   deleteProduct
 );
-router.get("/:id", authenticateUser, getSingleProduct);
+router.get("/:id", getSingleProduct);
 
 module.exports = router;
