@@ -11,11 +11,16 @@ const {
 } = require("../controllers/orderController");
 const {
   authenticateUser,
-  authorizePermisions,
+  authorizePermissions,
 } = require("../middleware/authentication");
 
 router.post("/", authenticateUser, createOrder);
-router.get("/", authenticateUser, authorizePermisions("admin"), getAllOrders);
+router.get(
+  "/",
+  authenticateUser,
+  authorizePermissions("owner,admin"),
+  getAllOrders
+);
 router.get("/showAllMyOrders", authenticateUser, getCurrentUserOrders);
 router.patch("/:id", authenticateUser, updateOrder);
 router.get("/:id", authenticateUser, getSingleOrder);

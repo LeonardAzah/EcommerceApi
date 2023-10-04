@@ -11,29 +11,29 @@ const {
 const { getSingleProductReviews } = require("../controllers/reviewController");
 const {
   authenticateUser,
-  authorizePermisions,
+  authorizePermissions,
 } = require("../middleware/authentication");
 
-router.post("/", authenticateUser, authorizePermisions("admin"), creatProduct);
+router.post("/", authenticateUser, authorizePermissions("owner"), creatProduct);
 router.get("/", getAllProducts);
 
 router.post(
   "/uploadImage",
   authenticateUser,
-  authorizePermisions("admin"),
+  authorizePermissions("owner"),
   uploadImage
 );
 
 router.patch(
   "/:id",
   authenticateUser,
-  authorizePermisions("admin"),
+  authorizePermissions("owner"),
   updateProduct
 );
 router.delete(
   "/:id",
   authenticateUser,
-  authorizePermisions("admin"),
+  authorizePermissions("owner"),
   deleteProduct
 );
 router.get("/:id", getSingleProduct);
