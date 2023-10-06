@@ -1,4 +1,5 @@
 const express = require("express");
+const Product = require("../models/Product");
 const router = express.Router();
 const {
   creatProduct,
@@ -7,6 +8,7 @@ const {
   updateProduct,
   uploadImage,
   deleteProduct,
+  getAllProductsByVendor,
 } = require("../controllers/productController");
 const { getSingleProductReviews } = require("../controllers/reviewController");
 const {
@@ -14,26 +16,38 @@ const {
   authorizePermissions,
 } = require("../middleware/authentication");
 
-router.post("/", authenticateUser, authorizePermissions("owner"), creatProduct);
+router.post(
+  "/",
+  authenticateUser,
+  authorizePermissions("vendor"),
+  creatProduct
+);
+
 router.get("/", getAllProducts);
+router.get(
+  "/vendor",
+  authenticateUser,
+  authorizePermissions("vendor"),
+  getAllProductsByVendor
+);
 
 router.post(
   "/uploadImage",
   authenticateUser,
-  authorizePermissions("owner"),
+  authorizePermissions("vendor"),
   uploadImage
 );
 
 router.patch(
   "/:id",
   authenticateUser,
-  authorizePermissions("owner"),
+  authorizePermissions("vendor"),
   updateProduct
 );
 router.delete(
   "/:id",
   authenticateUser,
-  authorizePermissions("owner"),
+  authorizePermissions("vendor"),
   deleteProduct
 );
 router.get("/:id", getSingleProduct);

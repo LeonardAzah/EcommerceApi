@@ -6,11 +6,24 @@ const {
   attachCookiesToResponse,
   checkPermissions,
 } = require("../utils");
+const { paginate } = require("../utils");
 
 const getAllUsers = async (req, res) => {
-  console.log(req.user);
-  const users = await User.find({ role: "user" }).select("-password");
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+  const filter = { role: "user" };
+  const selectFields = "name email role isVerified verified";
+  const users = await paginate(User, page, limit, selectFields, filter);
   res.status(StatusCodes.OK).json({ users });
+};
+
+const getAllVendors = async (req, res) => {
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+  const filter = { role: "vendor" };
+  const selectFields = "name email role isVerified verified";
+  const vendors = await paginate(User, page, limit, selectFields, filter);
+  res.status(StatusCodes.OK).json({ vendors });
 };
 
 const getSingleUser = async (req, res) => {
@@ -63,6 +76,7 @@ const updateUser = async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  getAllVendors,
   getSingleUser,
   showCurrentUser,
   updateUser,

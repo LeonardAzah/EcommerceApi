@@ -8,6 +8,7 @@ const {
 
 const {
   getAllUsers,
+  getAllVendors,
   getSingleUser,
   showCurrentUser,
   updateUser,
@@ -15,6 +16,13 @@ const {
 } = require("../controllers/userController");
 
 router.get("/", authenticateUser, authorizePermissions("admin"), getAllUsers);
+router.get(
+  "/vendors",
+  authenticateUser,
+  authorizePermissions("admin"),
+  getAllVendors
+);
+
 router.get("/showMe", authenticateUser, showCurrentUser);
 router.patch("/updateuserpassword", authenticateUser, updateUserPassword);
 router.patch("/updateuser", authenticateUser, updateUser);

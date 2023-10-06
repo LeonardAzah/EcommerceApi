@@ -1,7 +1,9 @@
 const Product = require("../models/Product");
 const CustomError = require("../errors");
 const { StatusCodes } = require("http-status-codes");
-const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+const { paginate } = require("../utils");
 
 const creatProduct = async (req, res) => {
   req.body.user = req.user.userId;
@@ -10,9 +12,20 @@ const creatProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const products = await Product.find({});
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
 
-  res.status(StatusCodes.OK).json({ products, count: products.length });
+  const products = await paginate(Product, page, limit);
+  res.status(StatusCodes.OK).json({ products });
+};
+
+const getAllProductsByVendor = async (req, res) => {
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+  const filter = { user: req.user.userId };
+
+  const products = await paginate(Product, page, limit, filter);
+  res.status(StatusCodes.OK).json({ products });
 };
 
 const getSingleProduct = async (req, res) => {
@@ -49,26 +62,17 @@ const deleteProduct = async (req, res) => {
 };
 
 const uploadImage = async (req, res) => {
-  console.log(req.files);
-  if (!req.files) {
-    throw new CustomError.BadRequestError("No file uploaded");
-  }
-  const productImage = req.files.uploadImage;
-  if (!productImage.mimetype.startsWith("image")) {
-    throw new CustomError.BadRequestError("Images only");
-  }
-  const maxSize = 1024 * 1024;
-  if (productImage > maxSize) {
-    throw new CustomError.BadRequestError("Image should be less than 1MB");
-  }
-
-  const imagePath = path.join(
-    __dirname,
-    "../public/uploads/" + `${productImage.name}`
+  const result = await cloudinary.uploader.upload(
+    req.files.image.tempFilePath,
+    {
+      use_filename: true,
+      folder: "e-commerce-api-folder",
+    }
   );
 
-  await productImage.mv(imagePath);
-  res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
+  fs.unlinkSync(req.files.image.tempFilePath);
+
+  return res.status(StatusCodes.OK).json({ image: result.secure_url });
 };
 
 module.exports = {
@@ -78,4 +82,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   uploadImage,
+  getAllProductsByVendor,
 };

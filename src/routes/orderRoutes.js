@@ -18,7 +18,7 @@ router.post("/", authenticateUser, createOrder);
 router.get(
   "/",
   authenticateUser,
-  authorizePermissions("owner,admin"),
+  authorizePermissions("vendor,admin"),
   getAllOrders
 );
 router.get("/showAllMyOrders", authenticateUser, getCurrentUserOrders);
