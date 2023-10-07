@@ -19,20 +19,23 @@ const productSchema = new mongoose.Schema(
       maxlength: [800, "Decription can not be more than 800 character"],
     },
     image: {
-      type: String,
+      publicId: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
     },
     category: {
       type: String,
       required: [true, "Provide product category"],
-      enum: ["office", "kitchen", "bedroom"],
+      enum: ["office", "kitchen", "bedroom", "electronics"],
     },
     company: {
       type: String,
       required: [true, "Provide comapny name"],
-      enum: {
-        values: ["ikea", "liddy", "marcos"],
-        message: "{VALUE} is not supported",
-      },
     },
     featured: { type: Boolean, default: false },
     freeShipping: { type: Boolean, default: false },

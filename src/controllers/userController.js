@@ -9,20 +9,32 @@ const {
 const { paginate } = require("../utils");
 
 const getAllUsers = async (req, res) => {
-  const page = parseInt(req.query.page);
-  const limit = parseInt(req.query.limit);
-  const filter = { role: "user" };
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const filters = { role: "user" };
   const selectFields = "name email role isVerified verified";
-  const users = await paginate(User, page, limit, selectFields, filter);
+  const users = await paginate({
+    model: User,
+    page,
+    limit,
+    selectFields,
+    filters,
+  });
   res.status(StatusCodes.OK).json({ users });
 };
 
 const getAllVendors = async (req, res) => {
-  const page = parseInt(req.query.page);
-  const limit = parseInt(req.query.limit);
-  const filter = { role: "vendor" };
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const filters = { role: "vendor" };
   const selectFields = "name email role isVerified verified";
-  const vendors = await paginate(User, page, limit, selectFields, filter);
+  const vendors = await paginate({
+    model: User,
+    page,
+    limit,
+    selectFields,
+    filters,
+  });
   res.status(StatusCodes.OK).json({ vendors });
 };
 

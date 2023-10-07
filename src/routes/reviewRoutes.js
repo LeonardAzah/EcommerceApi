@@ -10,6 +10,7 @@ const {
 const { authenticateUser } = require("../middleware/authentication");
 
 router.get("/", getAllReviews);
+
 router.post("/:id", authenticateUser, createReview);
 
 router.patch("/:id", authenticateUser, updateReview);

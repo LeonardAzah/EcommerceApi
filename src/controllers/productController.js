@@ -12,19 +12,33 @@ const creatProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const page = parseInt(req.query.page);
-  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const populateOptions = [{ model: "Review", path: "reviews" }];
 
-  const products = await paginate(Product, page, limit);
+  const products = await paginate({
+    model: Product,
+    page,
+    limit,
+    populateOptions,
+  });
   res.status(StatusCodes.OK).json({ products });
 };
 
 const getAllProductsByVendor = async (req, res) => {
-  const page = parseInt(req.query.page);
-  const limit = parseInt(req.query.limit);
-  const filter = { user: req.user.userId };
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const user = req.user.userId;
+  const filters = { user };
+  const populateOptions = [{ model: "Review", path: "reviews" }];
 
-  const products = await paginate(Product, page, limit, filter);
+  const products = await paginate({
+    model: Product,
+    page,
+    limit,
+    filters,
+    populateOptions,
+  });
   res.status(StatusCodes.OK).json({ products });
 };
 
@@ -56,6 +70,11 @@ const deleteProduct = async (req, res) => {
   if (!product) {
     throw new CustomError.NotFoundError("Product not found");
   }
+
+  const image = product.image.publicId;
+  if (image) {
+    await cloudinary.uploader.destroy(image);
+  }
   await Product.remove();
 
   res.status(StatusCodes.OK).json({ message: "Product deleted successfully" });
@@ -72,7 +91,9 @@ const uploadImage = async (req, res) => {
 
   fs.unlinkSync(req.files.image.tempFilePath);
 
-  return res.status(StatusCodes.OK).json({ image: result.secure_url });
+  return res
+    .status(StatusCodes.OK)
+    .json({ image: { url: result.secure_url, publicId: result.public_id } });
 };
 
 module.exports = {

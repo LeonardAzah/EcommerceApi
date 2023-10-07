@@ -2,10 +2,11 @@ const Review = require("../models/Review");
 const Product = require("../models/Product");
 const CustomError = require("../errors");
 const { StatusCodes } = require("http-status-codes");
-const { checkPermissions } = require("../utils");
+const { checkPermissions, paginate } = require("../utils");
 
 const createReview = async (req, res) => {
   const { id: productId } = req.params;
+
   const product = await Product.findOne({ _id: productId });
   if (!product) {
     throw new CustomError.NotFoundError("Product not found");
@@ -21,14 +22,42 @@ const createReview = async (req, res) => {
   }
 
   req.body.user = req.user.userId;
+  req.body.product = productId;
+
   const review = await Review.create(req.body);
   res.status(StatusCodes.CREATED).json({ review });
 };
 
 const getAllReviews = async (req, res) => {
-  const reviews = await Review.find({})
-    .populate({ path: "product", select: "name company price" })
-    .populate({ path: "user", select: "name" });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const populateOptions = [
+    { model: "Product", path: "product", select: "name company price" },
+    { model: "User", path: "user", select: "name" },
+  ];
+
+  const reviews = await paginate({
+    model: Review,
+    page,
+    limit,
+    populateOptions,
+  });
+  res.status(StatusCodes.OK).json({ reviews });
+};
+
+const getSingleProductReviews = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const { id: productId } = req.params;
+  const product = await Product.findOne({ _id: productId });
+  if (!product) {
+    throw new CustomError.NotFoundError("Product not found");
+  }
+
+  const filters = { product: productId };
+  const reviews = await paginate({ model: Review, page, limit, filters });
   res.status(StatusCodes.OK).json({ reviews });
 };
 
@@ -73,12 +102,6 @@ const deleteReview = async (req, res) => {
   await review.remove();
 
   res.status(StatusCodes.OK).json({ msg: "Review removed successfully" });
-};
-
-const getSingleProductReviews = async (req, res) => {
-  const { id: productId } = req.params;
-  const review = await Review.find({ product: productId });
-  res.status(StatusCodes.OK).json({ review });
 };
 
 module.exports = {
