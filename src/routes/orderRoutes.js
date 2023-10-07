@@ -6,6 +6,7 @@ const {
   getAllOrders,
   getSingleOrder,
   getCurrentUserOrders,
+  getOrdersForAVendor,
   createOrder,
   updateOrder,
 } = require("../controllers/orderController");
@@ -15,11 +16,12 @@ const {
 } = require("../middleware/authentication");
 
 router.post("/", authenticateUser, createOrder);
+router.get("/", authenticateUser, authorizePermissions("admin"), getAllOrders);
 router.get(
-  "/",
+  "/vendors-order",
   authenticateUser,
-  authorizePermissions("vendor,admin"),
-  getAllOrders
+  authorizePermissions("vendor"),
+  getOrdersForAVendor
 );
 router.get("/showAllMyOrders", authenticateUser, getCurrentUserOrders);
 router.patch("/:id", authenticateUser, updateOrder);

@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const Review = require("../models/Review");
 const CustomError = require("../errors");
 const { StatusCodes } = require("http-status-codes");
 const cloudinary = require("cloudinary").v2;
@@ -15,11 +16,13 @@ const getAllProducts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const populateOptions = [{ model: "Review", path: "reviews" }];
+  const excludeFields = "image.publicId";
 
   const products = await paginate({
     model: Product,
     page,
     limit,
+    excludeFields,
     populateOptions,
   });
   res.status(StatusCodes.OK).json({ products });
@@ -44,7 +47,9 @@ const getAllProductsByVendor = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
   const { id: productId } = req.params;
-  const product = await Product.findOne({ _id: productId }).populate("reviews");
+  const product = await Product.findOne({ _id: productId })
+    .select("-image.publicId")
+    .populate("reviews");
   if (!product) {
     throw new CustomError.NotFoundError("Product not found");
   }
@@ -70,6 +75,12 @@ const deleteProduct = async (req, res) => {
   if (!product) {
     throw new CustomError.NotFoundError("Product not found");
   }
+
+  // Retrieve the associated reviews
+  const reviews = await Review.find({ product: productId });
+
+  // Delete the reviews associated with the product
+  await Review.deleteMany({ product: productId });
 
   const image = product.image.publicId;
   if (image) {

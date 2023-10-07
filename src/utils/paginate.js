@@ -3,6 +3,7 @@ const paginate = async ({
   page = 1,
   limit = 10,
   selectFields = "",
+  excludeFields = "",
   filters = {},
   populateOptions = [],
 }) => {
@@ -16,6 +17,14 @@ const paginate = async ({
 
     if (selectFields) {
       query = query.select(selectFields);
+    }
+
+    // Exclude fields if specified
+    if (excludeFields) {
+      const fieldsToExclude = excludeFields.split(" ");
+      fieldsToExclude.forEach((field) => {
+        query = query.select(`-${field}`);
+      });
     }
 
     if (populateOptions && populateOptions.length > 0) {
