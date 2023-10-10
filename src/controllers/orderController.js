@@ -95,7 +95,6 @@ const getOrdersForAVendor = async (req, res) => {
     path: "user",
     select: "name email",
   });
-  // .select("user.name user.email");
   res.status(StatusCodes.OK).json({ orders });
 };
 

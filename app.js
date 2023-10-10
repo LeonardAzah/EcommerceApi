@@ -43,16 +43,16 @@ app.use(cors());
 app.use(xss());
 app.use(mongoSanitizer());
 
-// app.use(morgan("tiny"));
+app.use(morgan("tiny"));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(express.static("./public"));
 app.use(fileUpload({ useTempFiles: true }));
 
-// app.get("/", (req, res) => {
-//   res.send("e-commerce api");
-// });
+app.get("/", (req, res) => {
+  res.send("e-commerce api");
+});
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
